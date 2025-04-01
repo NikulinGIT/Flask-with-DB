@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список товаров</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .product-list {
+            margin-top: 20px;
+        }
+        .product-item {
+            padding: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .product-form {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Список товаров</h1>
+
+    <div class="product-list" id="productList">
+    </div>
+
+    <div class="product-form">
+        <h3>Добавить новый товар</h3>
+        <input type="text" id="newProductName" placeholder="Название товара">
+        <button onclick="addProduct()">Добавить</button>
+    </div>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:5000'; // Адрес сервера Flask
+
+        // Функция для получения списка товаров
+        async function getProducts() {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+
+            data.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item');
+                productItem.textContent = product.name;
+                productList.appendChild(productItem);
+            });
+        }
+
+        // Функция для добавления нового товара
+        async function addProduct() {
+            const productName = document.getElementById('newProductName').value;
+            if (productName.trim() !== '') {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: productName }),
+                });
+
+                if (response.ok) {
+                    getProducts(); // Обновляем список товаров
+                    document.getElementById('newProductName').value = ''; // Очищаем поле ввода
+                } else {
+                    alert('Ошибка при добавлении товара');
+                }
+            } else {
+                alert('Пожалуйста, введите название товара');
+            }
+        }
+
+        // Загружаем товары при первой загрузке страницы
+        getProducts();
+    </script>
+
+</body>
+</html>
